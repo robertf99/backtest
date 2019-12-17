@@ -4,8 +4,9 @@ from backtesting.test import GOOG
 from backtesting import Backtest
 from bokeh.embed import components
 from bokeh.client import pull_session
-from bokeh.embed import server_session
+from bokeh.embed import server_session, json_item
 import pandas as pd
+import json
 
 app = Flask(__name__)
 
@@ -80,5 +81,6 @@ def backtest(nrow):
 
     bt = Backtest(target_df, SmaCross, cash=10000, commission=0.002)
     result = bt.run()[:-1].to_json()
-    return result
+    # plot = json.dumps(json_item(bt.plot(), 'plot'))
+    return jsonify({'result': result})
 
