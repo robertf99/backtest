@@ -21,7 +21,7 @@
                 "--no-reload"
             ],
             "jinja": true,
-            "pythonPath": "${cwd}/api/.venv/Scripts/python.exe",
+            "pythonPath": "${workspaceFolder}/api/.venv/bin/python",
             "justMyCode": false
         }
     ]
