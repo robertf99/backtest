@@ -1,50 +1,88 @@
-import React from 'react';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
+import React from "react";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import * as Bokeh from "bokehjs";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
-  }),
-);
+import { makeStyles, Theme } from "@material-ui/core/styles";
+import { JsonItem } from "bokehjs/build/js/types/embed";
+
+const useStyles = makeStyles((theme: Theme) => ({
+  container: {
+    flexGrow: 1,
+    width: "100%",
+    flexDirection: "row"
+  },
+  item: {
+    padding: "5px",
+    background: "red"
+  },
+  paper: {
+    margin: "5px",
+    elevation: 1,
+    variant: "outlined"
+  }
+}));
+
+const axios = require("axios").default;
+
+const getPlot = (): JSX.Element => {
+  axios
+    .get("http://localhost:4013/visual")
+    .then((response: any) => {
+      console.log(response);
+      return JSON.parse(response.data);
+    })
+    .then((data: JsonItem) => {
+      Bokeh.embed.embed_item(data, "bt_plot");
+    });
+  return <div>test</div>;
+  // const res_json = JSON.parse(response);
+  //   return <div>aa</div>;
+};
+
+// const apiClient = axios.create({
+//     baseURL: 'localhost:4013',
+//     responseType: 'json',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     }
+//   });
 
 export default function SimpleSelect() {
   const classes = useStyles();
-  const [tick, setTick] = React.useState(0);
-
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setTick(event.target.value as number);
-  };
-
   return (
-    <div>
-      <FormControl className={classes.formControl}>
-        <InputLabel id="demo-simple-select-label">Tick</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={tick}
-          onChange={handleChange}
-        >
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
-        </Select>
-        <Button variant="contained" color="primary">
-          Plot!
-        </Button>
-      </FormControl>
-    </div>
-  )
+    <Grid container className={classes.container}>
+      <Grid item className={classes.item} xs={12}>
+        <Paper className={classes.paper} square>
+          <React.Fragment>
+            {getPlot()}
+            <div id="bt_plot"></div>
+          </React.Fragment>
+
+          {/* <div id="bt_plot"></div>
+ddd
+          <script>
+            {fetch("http://localhost:4013/visual")
+              .then(function(response) {
+                return JSON.parse(response.text)
+              })
+              .then(function(item) {
+                Bokeh.embed.embed_item(item);
+              })}
+            ;
+          </script> */}
+        </Paper>
+      </Grid>
+      <Grid item className={classes.item} xs={6}>
+        <Paper className={classes.paper} square>
+          Data
+        </Paper>
+      </Grid>
+      <Grid item className={classes.item} xs={6}>
+        <Paper className={classes.paper} square>
+          Setting
+        </Paper>
+      </Grid>
+    </Grid>
+  );
 }

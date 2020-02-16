@@ -14,6 +14,9 @@ backtesting = "*"
 flask = "*"
 matplotlib = "*"
 pandas = "*"
+sqlalchemy = "*"
+uvicorn = "*"
+bokeh = "==1.4.0"
 
 [requires]
 python_version = "3.8"
