@@ -11,15 +11,19 @@ module.exports = {
     hot: true
   },
   devtool: "source-map",
-  resolve:
-    { mainFields: ['main', 'module'] },
-  
+  resolve: { mainFields: ["main", "module"] },
+
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist")
   },
   module: {
     rules: [
+      {
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/,
+        exclude: /node_modules/,
+        use: ["file-loader?name=[name].[ext]"] // ?name=[name].[ext] is only necessary to preserve the original file name
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -57,11 +61,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "Clean Webpack Project",
-      template: path.resolve(__dirname, "public", "index.html"),
-      filename: "index.html",
-      inject: "body",
-      favicon: "public/favicon.ico"
+      template: "./public/index.html",
+      filename: "./index.html",
+      favicon: "./public/favicon.ico"
     })
   ]
 };

@@ -95,20 +95,20 @@ async def health():
     return {"status": "healthy"}
 
 
-@app.get("/test")
+@app.get("/run-test")
 def test_goog():
     bt = Backtest(GOOG, SmaCross, cash=10000, commission=0.002)
-    result = bt.run()[:-1].to_json()
+    result = bt.run()[:-1].to_json(orient='split', date_format='iso')
     return result
 
 
-@app.get("/visual")
+@app.get("/visual-test")
 def visual():
     bt = Backtest_Graph(GOOG, SmaCross, cash=10000, commission=0.002)
     bt.run()
     plot = bt.plot(open_browser=False)
     # script, div = components(plot)
-    plot_json = json.dumps(json_item(plot,'bt-plot'))
+    plot_json = json.dumps(json_item(plot,'bt_plot'))
     return plot_json
 
 
