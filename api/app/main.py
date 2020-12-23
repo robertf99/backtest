@@ -1,3 +1,4 @@
+from core.event_handlers import startup_handler
 from strategy.SmaCross import SmaCross
 from backtesting.test import GOOG
 from backtesting import Backtest
@@ -13,6 +14,10 @@ import re
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+
+from core.config import app_config
+
+COMMISSION = app_config.COMMISSION
 
 
 class Backtest_Graph(Backtest):
@@ -76,7 +81,6 @@ app = FastAPI(
 )
 
 origins = [
-
     "http://localhost:8080",
 ]
 
@@ -87,6 +91,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_event_handler("startup", startup_handler(app))
+
 
 @app.get("/health")
 @app.get("/health/live")
@@ -108,7 +115,7 @@ def visual():
     bt.run()
     plot = bt.plot(open_browser=False)
     # script, div = components(plot)
-    plot_json = json.dumps(json_item(plot,'bt-plot'))
+    plot_json = json.dumps(json_item(plot, "bt-plot"))
     return plot_json
 
 
@@ -128,26 +135,20 @@ def visual():
 #     return jsonify("success")
 
 
-# @app.route("/backtest/<nrow>")
-# def backtest(nrow):
-#     # should ideally have datetime as index rather then column from source
-#     target = pd.read_csv(
-#         "data.csv",
-#         header=0,
-#         index_col=[0, 1],
-#         encoding="gb2312",
-#         parse_dates=True,
-#         infer_datetime_format=True,
-#     ).iloc[int(nrow), :]
-#     target_df = pd.DataFrame(pd.to_numeric(target))  # ensure all numeric data
-#     target_tick = target_df.columns
-#     target_df.columns = ["Close"]
-#     target_df["Open"] = target_df["High"] = target_df["Low"] = target_df[
-#         "Close"
-#     ]  # ensure correct data type
-#     target_df.index = pd.to_datetime(target_df.index)  # ensure datetime index
-
-#     bt = Backtest_Graph(target_df, SmaCross, cash=10000, commission=0.002)
-#     result = bt.run()
-#     plot = bt.plot(results=result, filename=None, open_browser=False)
-#         return json.dumps(json_item(plot, "myplot"))
+@app.get("/backtest/{Tick}")
+async def backtest(Tick):
+    target = app.state.df_source.query("Tick==@Tick").sort_values("Date")
+    backtest_df = pd.DataFrame(
+        {
+            "Open": target.Close.to_list(),
+            "High": target.Close.to_list(),
+            "Low": target.Close.to_list(),
+            "Close": target.Close.to_list(),
+        },
+        index=target.Date,
+    )
+    bt = Backtest(backtest_df, SmaCross, commission=COMMISSION)
+    result = bt.run().to_dict()
+    # remove one key for easy json conversion
+    result.pop("_strategy", None)
+    return result

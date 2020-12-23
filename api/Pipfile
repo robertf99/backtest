@@ -5,7 +5,6 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
-v = {editable = true,version = "*"}
 black = "*"
 
 [packages]
@@ -17,6 +16,8 @@ pandas = "*"
 sqlalchemy = "*"
 uvicorn = "*"
 bokeh = "==1.4.0"
+fastapi = "*"
+dash = "*"
 
 [requires]
 python_version = "3.8"
