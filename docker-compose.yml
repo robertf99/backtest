@@ -1,0 +1,12 @@
+networks:
+  backtest-net:
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    networks:
+      - backtest-net
+    ports:
+      - 5000:5000
